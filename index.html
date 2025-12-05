@@ -3,458 +3,627 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>北九州之旅</title>
-    <!-- 引入 Noto Serif TC (思源宋體) 以呈現沉穩時尚感 -->
+    <title>北九州之旅 | Kyushu Trip</title>
+    
+    <!-- 引入字體：Montserrat (英文/數字用) + Noto Serif TC (中文用) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* 沉穩時尚配色：深藍、金、灰白 */
-            --primary-color: #1A2530; /* 深海藍 */
-            --secondary-color: #C5A059; /* 香檳金 */
-            --bg-color: #F4F4F4; /* 極簡灰白 */
+            /* 質感升級配色 */
+            --primary-bg: #F8F9FA; /* 極致灰白背景 */
             --card-bg: #FFFFFF;
-            --text-color: #2C3E50;
-            --time-color: #8E8E8E; /* 低調灰 */
-            --border-color: #E0E0E0;
+            --text-main: #141E30; /* 午夜藍：比純黑更有層次 */
+            --text-sub: #64748B; /* 藍灰色：質感副標 */
+            --accent-gold: #C49B55; /* 流沙金：低調奢華 */
+            --accent-gold-light: rgba(196, 155, 85, 0.1);
+            --border-line: #E2E8F0;
+            
+            /* 陰影系統：更柔和的擴散光 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 30px -10px rgba(20, 30, 48, 0.08);
+            --shadow-hover: 0 20px 40px -12px rgba(20, 30, 48, 0.12);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Noto Serif TC', "Kaiti", "STKaiti", serif; /* 優先使用思源宋體，系統有楷體則後補 */
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Noto Serif TC', serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
             line-height: 1.8;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased; /* 文字邊緣平滑 */
         }
 
-        /* 標題區域 - 雜誌封面風格 */
-        header {
-            text-align: center;
-            padding: 80px 20px 60px;
-            background: #fff;
-            border-bottom: 1px solid var(--border-color);
-            letter-spacing: 0.1em;
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--primary-color);
-            margin-bottom: 15px;
+        /* 英數專用字體 class */
+        .en-font {
+            font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.05em;
         }
 
-        .subtitle {
-            font-size: 1rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
+        /* --- Header: 雜誌封面感 --- */
+        header {
+            text-align: center;
+            padding: 80px 24px 50px;
+            background: #fff;
+            position: relative;
+        }
+
+        /* 裝飾線 */
+        header::after {
+            content: '';
             display: block;
-            margin-top: 10px;
+            width: 40px;
+            height: 2px;
+            background: var(--accent-gold);
+            margin: 30px auto 0;
+        }
+
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-weight: 500;
+        }
+
+        /* --- Navigation: 手機優化滑動選單 --- */
+        .nav-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.98); /* 幾乎不透明，解決殘影 */
+            /* 移除 box-shadow，改用乾淨的 border */
+            border-bottom: 1px solid var(--border-line); 
+            padding: 12px 0;
+            /* 確保層級正確 */
+            transform: translateZ(0); 
+        }
+
+        .nav-scroller {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 20px;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
+        }
+        
+        .nav-scroller::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-sub);
+            padding: 8px 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* 選中狀態：簡約的高級感 */
+        .nav-btn.active {
+            color: var(--text-main);
+            background-color: var(--accent-gold-light);
+            border-color: rgba(196, 155, 85, 0.3);
             font-weight: 600;
         }
 
-        /* 時間軸容器 */
+        /* --- Timeline 佈局 --- */
         .timeline-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 20px;
             position: relative;
+            min-height: 80vh;
         }
 
-        /* 時間軸線條 (Desktop: 置中) */
-        .timeline-container::before {
-            content: '';
+        /* 中央軸線 */
+        .timeline-line {
             position: absolute;
             left: 50%;
-            top: 40px;
-            bottom: 40px;
-            transform: translateX(-50%);
+            top: 0;
+            bottom: 0;
             width: 1px;
-            background: var(--secondary-color);
+            background: #D1D5DB; /* 淺灰實線 */
+            transform: translateX(-50%);
             z-index: 0;
         }
 
-        /* 每一天的卡片區塊 */
+        /* --- 卡片設計 --- */
         .day-card {
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin-bottom: 60px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s ease-out;
+            align-items: flex-start; /* 頂對齊 */
+            margin-bottom: 80px;
             position: relative;
-        }
-
-        .day-card.show {
             opacity: 1;
-            transform: translateY(0);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        /* Desktop: 日期圓點 */
+        /* 日期圓點 */
         .day-dot {
             position: absolute;
             left: 50%;
-            width: 12px;
-            height: 12px;
+            top: 24px; /* 對齊卡片標題 */
+            width: 10px;
+            height: 10px;
             background: #fff;
-            border: 2px solid var(--secondary-color);
+            border: 2px solid var(--accent-gold);
             border-radius: 50%;
             transform: translateX(-50%);
-            z-index: 1;
+            z-index: 2;
+            box-shadow: 0 0 0 4px var(--primary-bg); /* 讓線條在圓點周圍斷開的視覺效果 */
         }
 
-        /* 卡片內容設計 - 極簡主義 */
+        /* 卡片本體 */
         .card-content {
             background: var(--card-bg);
             padding: 40px;
-            width: 45%; /* Desktop 寬度 */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border-top: 3px solid var(--secondary-color); /* 頂部金色裝飾線 */
-            position: relative;
+            width: 44%;
+            border-radius: 2px; /* 方正導圓角 */
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
         }
 
-        /* 左右交錯佈局 (Desktop) */
+        .card-content:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* 左右交錯排版 (Desktop) */
         .day-card:nth-child(odd) .card-content {
-            margin-right: auto; /* 靠左 */
+            margin-right: auto;
             text-align: right;
         }
         
         .day-card:nth-child(even) .card-content {
-            margin-left: auto; /* 靠右 */
+            margin-left: auto;
             text-align: left;
         }
 
-        /* 為了讓列表在左側卡片也能對齊好看，重新定義列表對齊 */
+        /* 對齊修正 */
         .day-card:nth-child(odd) .itinerary-item {
             flex-direction: row-reverse;
+            text-align: right;
+        }
+        
+        .day-card:nth-child(odd) .itinerary-item .time {
+            margin-left: 15px;
+            margin-right: 0;
+        }
+        
+        .day-card:nth-child(even) .itinerary-item .time {
+            margin-right: 15px;
+            margin-left: 0;
         }
 
-        /* 日期標題 */
+        /* --- 內容細節 --- */
         .date-badge {
-            font-size: 0.85rem;
-            color: var(--secondary-color);
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            margin-bottom: 5px;
-            display: block;
+            display: inline-block;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         .day-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-            font-weight: 900;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
+            font-size: 1.6rem;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-weight: 700;
+            line-height: 1.3;
         }
 
-        /* 行程列表 */
-        ul.itinerary-list {
-            list-style: none;
-        }
+        .itinerary-list { list-style: none; }
 
-        li.itinerary-item {
-            margin-bottom: 15px;
+        .itinerary-item {
             display: flex;
             align-items: baseline;
-            gap: 15px;
+            margin-bottom: 18px;
+            color: #444;
+            font-size: 0.95rem;
         }
 
         .time {
-            color: var(--time-color);
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* 數字用無襯線體較易讀 */
-            font-size: 0.9rem;
+            color: var(--text-sub);
             font-weight: 500;
-            min-width: 50px;
+            font-size: 0.85rem;
+            min-width: 45px;
+            opacity: 0.8;
         }
 
-        .activity {
-            flex: 1;
-            font-size: 1rem;
-            color: #444;
-        }
-
-        /* 重點標示 - 低調的底線 */
         .highlight {
-            border-bottom: 2px solid rgba(197, 160, 89, 0.4);
-            color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+            color: var(--text-main);
             font-weight: 600;
-            padding-bottom: 1px;
+            z-index: 1;
+        }
+        
+        /* 高質感螢光筆效果 */
+        .highlight::before {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: -2px;
+            right: -2px;
+            height: 6px;
+            background-color: rgba(196, 155, 85, 0.25);
+            z-index: -1;
+            transition: height 0.3s;
+        }
+        
+        .card-content:hover .highlight::before {
+            height: 100%; /* hover 時填滿 */
         }
 
         .hotel {
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px dotted #ccc;
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-line);
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-family: 'Noto Serif TC', serif;
+            letter-spacing: 0.05em;
         }
 
+        /* --- Footer --- */
         footer {
             text-align: center;
-            padding: 50px;
-            color: #999;
-            font-size: 0.8rem;
+            padding: 60px 20px;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
             background: #fff;
-            border-top: 1px solid var(--border-color);
-            letter-spacing: 0.1em;
+            border-top: 1px solid var(--border-line);
         }
 
-        /* --- 手機版優化 (RWD) --- */
+        /* --- JS Filter 狀態 --- */
+        .hidden { display: none; }
+        .fade-in { animation: fadeInUp 0.6s ease forwards; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 單日顯示模式 (JS控制 class) --- */
+        .timeline-container.single-mode .timeline-line { display: none; }
+        .timeline-container.single-mode .day-dot { display: none; }
+        
+        .timeline-container.single-mode .day-card {
+            margin-bottom: 0;
+            margin-top: 20px;
+        }
+        
+        .timeline-container.single-mode .card-content {
+            width: 70%;
+            margin: 0 auto !important; /* 強制置中 */
+            text-align: left !important; /* 強制左對齊 */
+        }
+        
+        .timeline-container.single-mode .itinerary-item {
+            flex-direction: row !important; /* 強制正常方向 */
+            text-align: left !important;
+        }
+        
+        .timeline-container.single-mode .time {
+            margin-right: 15px !important;
+            margin-left: 0 !important;
+        }
+
+        /* --- RWD 手機版優化 --- */
         @media (max-width: 768px) {
-            
-            /* 調整容器 */
-            .timeline-container {
-                padding: 20px 15px;
-            }
+            header { padding: 60px 20px 30px; }
+            h1 { font-size: 2rem; }
 
-            /* 線條移到左側 */
-            .timeline-container::before {
-                left: 20px;
-                transform: none;
-            }
+            .nav-scroller { justify-content: flex-start; padding: 0 16px; }
 
-            .day-dot {
-                left: 20px;
-                transform: translateX(-50%);
-            }
+            .timeline-container { padding: 40px 16px; }
 
-            /* 卡片改為全寬，並留出左側空間 */
+            /* 線條左移 */
+            .timeline-line { left: 24px; transform: none; }
+            .day-dot { left: 24px; transform: translateX(-50%); }
+
+            /* 卡片全寬 */
             .card-content {
-                width: calc(100% - 40px); /* 減去左側空間 */
-                margin-left: 40px !important; /* 強制靠右 */
+                width: calc(100% - 48px);
+                margin-left: 48px !important;
                 margin-right: 0 !important;
-                text-align: left !important; /* 強制靠左對齊 */
-                padding: 25px;
+                text-align: left !important;
+                padding: 30px 24px;
             }
 
-            /* 修正列表對齊方向 */
+            /* 手機版列表統一左對齊 */
             .day-card:nth-child(odd) .itinerary-item {
                 flex-direction: row;
+                text-align: left;
+            }
+            .day-card:nth-child(odd) .itinerary-item .time {
+                margin-left: 0;
+                margin-right: 15px;
             }
 
-            h1 { font-size: 2rem; }
+            /* 單日模式手機版 */
+            .timeline-container.single-mode .card-content {
+                width: 100%;
+                margin-left: 0 !important;
+            }
         }
-
     </style>
 </head>
 <body>
 
     <header>
+        <span class="subtitle en-font">Travel Itinerary</span>
         <h1>北九州之旅</h1>
-        <span class="subtitle">February 21 - 27, 2025</span>
+        <span class="subtitle en-font">Feb 21 - Feb 27, 2026</span>
     </header>
 
-    <div class="timeline-container">
+    <!-- 導航列 -->
+    <nav class="nav-container">
+        <div class="nav-scroller">
+            <button class="nav-btn active" data-filter="all">ALL SCHEDULE</button>
+            <button class="nav-btn" data-filter="day1">DAY 01</button>
+            <button class="nav-btn" data-filter="day2">DAY 02</button>
+            <button class="nav-btn" data-filter="day3">DAY 03</button>
+            <button class="nav-btn" data-filter="day4">DAY 04</button>
+            <button class="nav-btn" data-filter="day5">DAY 05</button>
+            <button class="nav-btn" data-filter="day6">DAY 06</button>
+            <button class="nav-btn" data-filter="day7">DAY 07</button>
+        </div>
+    </nav>
+
+    <div class="timeline-container" id="timeline">
+        <div class="timeline-line"></div>
 
         <!-- Day 1 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day1">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 01 | 02.21 (SAT)</span>
+                <span class="date-badge en-font">Day 01 | 02.21 (Sat)</span>
                 <h2 class="day-title">初抵熊本</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">10:35</span>
+                        <span class="time en-font">10:35</span>
                         <span class="activity">抵達熊本機場</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">Noon</span>
+                        <span class="time en-font">Noon</span>
                         <span class="activity">熊本城、城彩苑、稻荷神社</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">15:00</span>
+                        <span class="time en-font">15:00</span>
                         <span class="activity">水前寺成趣園、<span class="highlight">魯夫雕像</span></span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">Night</span>
+                        <span class="time en-font">Night</span>
                         <span class="activity">上下通商店街</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: CANDEO 新市街光芒飯店
+                    <span class="en-font">Stay:</span> CANDEO 新市街光芒飯店
                 </div>
             </div>
         </div>
 
         <!-- Day 2 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day2">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 02 | 02.22 (SUN)</span>
+                <span class="date-badge en-font">Day 02 | 02.22 (Sun)</span>
                 <h2 class="day-title">阿蘇火山</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">Day</span>
-                        <span class="activity">阿蘇一日遊（草千里、火山口）</span>
+                        <span class="time en-font">All Day</span>
+                        <span class="activity">阿蘇火山一日遊（草千里、火山口絕景）</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: 熊本（續住）
+                    <span class="en-font">Stay:</span> 熊本（續住）
                 </div>
             </div>
         </div>
 
         <!-- Day 3 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day3">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 03 | 02.23 (MON)</span>
+                <span class="date-badge en-font">Day 03 | 02.23 (Mon)</span>
                 <h2 class="day-title">橫斷列車</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">11:49</span>
+                        <span class="time en-font">11:49</span>
                         <span class="activity">搭乘 <span class="highlight">九州橫斷特急 3號</span></span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">15:08</span>
+                        <span class="time en-font">15:08</span>
                         <span class="activity">抵達大分車站</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">Night</span>
-                        <span class="activity">市區晚餐、休息</span>
+                        <span class="time en-font">Night</span>
+                        <span class="activity">大分市區晚餐、休息</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: 大分 JR Blossom
+                    <span class="en-font">Stay:</span> 大分 JR Blossom
                 </div>
             </div>
         </div>
 
         <!-- Day 4 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day4">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 04 | 02.24 (TUE)</span>
+                <span class="date-badge en-font">Day 04 | 02.24 (Tue)</span>
                 <h2 class="day-title">前往溫泉鄉</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">13:25</span>
+                        <span class="time en-font">13:25</span>
                         <span class="activity">JR 前往由布院</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">14:12</span>
+                        <span class="time en-font">14:12</span>
                         <span class="activity">抵達由布院溫泉街</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">15:00</span>
+                        <span class="time en-font">15:00</span>
                         <span class="activity">湯之坪街道、甜點巡禮</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: 雅瓦拉其佐藤 / 日野春布院
+                    <span class="en-font">Stay:</span> 雅瓦拉其佐藤 / 日野春布院
                 </div>
             </div>
         </div>
 
         <!-- Day 5 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day5">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 05 | 02.25 (WED)</span>
+                <span class="date-badge en-font">Day 05 | 02.25 (Wed)</span>
                 <h2 class="day-title">由布院之森</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">09:00</span>
-                        <span class="activity">金鱗湖晨霧</span>
+                        <span class="time en-font">09:00</span>
+                        <span class="activity">金鱗湖晨霧散策</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">12:01</span>
+                        <span class="time en-font">12:01</span>
                         <span class="activity">觀光列車 <span class="highlight">由布院之森</span></span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">14:19</span>
+                        <span class="time en-font">14:19</span>
                         <span class="activity">抵達博多</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">15:30</span>
+                        <span class="time en-font">15:30</span>
                         <span class="activity">太宰府天滿宮、竈門神社</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">Night</span>
-                        <span class="activity">天神地下街</span>
+                        <span class="time en-font">Night</span>
+                        <span class="activity">天神地下街購物</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: 福岡
+                    <span class="en-font">Stay:</span> 福岡
                 </div>
             </div>
         </div>
 
         <!-- Day 6 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day6">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 06 | 02.26 (THU)</span>
+                <span class="date-badge en-font">Day 06 | 02.26 (Thu)</span>
                 <h2 class="day-title">門司港與夜景</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">Day</span>
+                        <span class="time en-font">Day</span>
                         <span class="activity">門司港懷舊區、小倉</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">Night</span>
+                        <span class="time en-font">Night</span>
                         <span class="activity"><span class="highlight">皿倉山夜景</span> (新日本三大夜景)</span>
                     </li>
                 </ul>
                 <div class="hotel">
-                    Accommodation: 福岡（續住）
+                    <span class="en-font">Stay:</span> 福岡（續住）
                 </div>
             </div>
         </div>
 
         <!-- Day 7 -->
-        <div class="day-card">
+        <div class="day-card" data-day="day7">
             <div class="day-dot"></div>
             <div class="card-content">
-                <span class="date-badge">DAY 07 | 02.27 (FRI)</span>
+                <span class="date-badge en-font">Day 07 | 02.27 (Fri)</span>
                 <h2 class="day-title">福岡巡禮</h2>
                 <ul class="itinerary-list">
                     <li class="itinerary-item">
-                        <span class="time">Day</span>
+                        <span class="time en-font">Day</span>
                         <span class="activity">櫛田神社、博多運河城、福岡城跡</span>
                     </li>
                     <li class="itinerary-item">
-                        <span class="time">18:30</span>
-                        <span class="activity">搭機回台灣</span>
+                        <span class="time en-font">18:30</span>
+                        <span class="activity">搭機回台灣，下次再見</span>
                     </li>
                 </ul>
             </div>
         </div>
-
     </div>
 
     <footer>
-        <p>KYUSHU TRIP PLANNER © 2025</p>
+        <span class="en-font">KYUSHU TRIP PLANNER © 2026</span>
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            const btns = document.querySelectorAll('.nav-btn');
             const cards = document.querySelectorAll('.day-card');
+            const timelineContainer = document.getElementById('timeline');
             
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('show');
-                    }
-                });
-            }, {
-                threshold: 0.15
-            });
+            // Filter Function
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 1. Update UI state
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
 
-            cards.forEach(card => {
-                observer.observe(card);
+                    const filter = btn.getAttribute('data-filter');
+                    const isSingleMode = filter !== 'all';
+
+                    // 2. Toggle timeline mode
+                    if (isSingleMode) {
+                        timelineContainer.classList.add('single-mode');
+                        window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top for focus
+                    } else {
+                        timelineContainer.classList.remove('single-mode');
+                    }
+
+                    // 3. Filter cards with animation
+                    cards.forEach(card => {
+                        // Reset animation class
+                        card.classList.remove('fade-in');
+                        
+                        if (filter === 'all' || card.getAttribute('data-day') === filter) {
+                            card.classList.remove('hidden');
+                            // Small delay to allow reflow and trigger animation
+                            setTimeout(() => card.classList.add('fade-in'), 10);
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+                });
             });
         });
     </script>
