@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北九州之旅</title>
+    <!-- 引入 Noto Serif TC (思源宋體) 以呈現沉穩時尚感 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 沉穩時尚配色：深藍、金、灰白 */
+            --primary-color: #1A2530; /* 深海藍 */
+            --secondary-color: #C5A059; /* 香檳金 */
+            --bg-color: #F4F4F4; /* 極簡灰白 */
+            --card-bg: #FFFFFF;
+            --text-color: #2C3E50;
+            --time-color: #8E8E8E; /* 低調灰 */
+            --border-color: #E0E0E0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', "Kaiti", "STKaiti", serif; /* 優先使用思源宋體，系統有楷體則後補 */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* 標題區域 - 雜誌封面風格 */
+        header {
+            text-align: center;
+            padding: 80px 20px 60px;
+            background: #fff;
+            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.1em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* 時間軸容器 */
+        .timeline-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* 時間軸線條 (Desktop: 置中) */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 40px;
+            bottom: 40px;
+            transform: translateX(-50%);
+            width: 1px;
+            background: var(--secondary-color);
+            z-index: 0;
+        }
+
+        /* 每一天的卡片區塊 */
+        .day-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+            position: relative;
+        }
+
+        .day-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Desktop: 日期圓點 */
+        .day-dot {
+            position: absolute;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 2px solid var(--secondary-color);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        /* 卡片內容設計 - 極簡主義 */
+        .card-content {
+            background: var(--card-bg);
+            padding: 40px;
+            width: 45%; /* Desktop 寬度 */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--secondary-color); /* 頂部金色裝飾線 */
+            position: relative;
+        }
+
+        /* 左右交錯佈局 (Desktop) */
+        .day-card:nth-child(odd) .card-content {
+            margin-right: auto; /* 靠左 */
+            text-align: right;
+        }
+        
+        .day-card:nth-child(even) .card-content {
+            margin-left: auto; /* 靠右 */
+            text-align: left;
+        }
+
+        /* 為了讓列表在左側卡片也能對齊好看，重新定義列表對齊 */
+        .day-card:nth-child(odd) .itinerary-item {
+            flex-direction: row-reverse;
+        }
+
+        /* 日期標題 */
+        .date-badge {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .day-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 900;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        /* 行程列表 */
+        ul.itinerary-list {
+            list-style: none;
+        }
+
+        li.itinerary-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+        }
+
+        .time {
+            color: var(--time-color);
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* 數字用無襯線體較易讀 */
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-width: 50px;
+        }
+
+        .activity {
+            flex: 1;
+            font-size: 1rem;
+            color: #444;
+        }
+
+        /* 重點標示 - 低調的底線 */
+        .highlight {
+            border-bottom: 2px solid rgba(197, 160, 89, 0.4);
+            color: var(--primary-color);
+            font-weight: 600;
+            padding-bottom: 1px;
+        }
+
+        .hotel {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px dotted #ccc;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-size: 0.8rem;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            letter-spacing: 0.1em;
+        }
+
+        /* --- 手機版優化 (RWD) --- */
+        @media (max-width: 768px) {
+            
+            /* 調整容器 */
+            .timeline-container {
+                padding: 20px 15px;
+            }
+
+            /* 線條移到左側 */
+            .timeline-container::before {
+                left: 20px;
+                transform: none;
+            }
+
+            .day-dot {
+                left: 20px;
+                transform: translateX(-50%);
+            }
+
+            /* 卡片改為全寬，並留出左側空間 */
+            .card-content {
+                width: calc(100% - 40px); /* 減去左側空間 */
+                margin-left: 40px !important; /* 強制靠右 */
+                margin-right: 0 !important;
+                text-align: left !important; /* 強制靠左對齊 */
+                padding: 25px;
+            }
+
+            /* 修正列表對齊方向 */
+            .day-card:nth-child(odd) .itinerary-item {
+                flex-direction: row;
+            }
+
+            h1 { font-size: 2rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>北九州之旅</h1>
+        <span class="subtitle">February 21 - 27, 2025</span>
+    </header>
+
+    <div class="timeline-container">
+
+        <!-- Day 1 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 01 | 02.21 (SAT)</span>
+                <h2 class="day-title">初抵熊本</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">10:35</span>
+                        <span class="activity">抵達熊本機場</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">Noon</span>
+                        <span class="activity">熊本城、城彩苑、稻荷神社</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">15:00</span>
+                        <span class="activity">水前寺成趣園、<span class="highlight">魯夫雕像</span></span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">Night</span>
+                        <span class="activity">上下通商店街</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: CANDEO 新市街光芒飯店
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 2 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 02 | 02.22 (SUN)</span>
+                <h2 class="day-title">阿蘇火山</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">Day</span>
+                        <span class="activity">阿蘇一日遊（草千里、火山口）</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: 熊本（續住）
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 3 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 03 | 02.23 (MON)</span>
+                <h2 class="day-title">橫斷列車</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">11:49</span>
+                        <span class="activity">搭乘 <span class="highlight">九州橫斷特急 3號</span></span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">15:08</span>
+                        <span class="activity">抵達大分車站</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">Night</span>
+                        <span class="activity">市區晚餐、休息</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: 大分 JR Blossom
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 4 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 04 | 02.24 (TUE)</span>
+                <h2 class="day-title">前往溫泉鄉</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">13:25</span>
+                        <span class="activity">JR 前往由布院</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">14:12</span>
+                        <span class="activity">抵達由布院溫泉街</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">15:00</span>
+                        <span class="activity">湯之坪街道、甜點巡禮</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: 雅瓦拉其佐藤 / 日野春布院
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 5 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 05 | 02.25 (WED)</span>
+                <h2 class="day-title">由布院之森</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">09:00</span>
+                        <span class="activity">金鱗湖晨霧</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">12:01</span>
+                        <span class="activity">觀光列車 <span class="highlight">由布院之森</span></span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">14:19</span>
+                        <span class="activity">抵達博多</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">15:30</span>
+                        <span class="activity">太宰府天滿宮、竈門神社</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">Night</span>
+                        <span class="activity">天神地下街</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: 福岡
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 6 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 06 | 02.26 (THU)</span>
+                <h2 class="day-title">門司港與夜景</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">Day</span>
+                        <span class="activity">門司港懷舊區、小倉</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">Night</span>
+                        <span class="activity"><span class="highlight">皿倉山夜景</span> (新日本三大夜景)</span>
+                    </li>
+                </ul>
+                <div class="hotel">
+                    Accommodation: 福岡（續住）
+                </div>
+            </div>
+        </div>
+
+        <!-- Day 7 -->
+        <div class="day-card">
+            <div class="day-dot"></div>
+            <div class="card-content">
+                <span class="date-badge">DAY 07 | 02.27 (FRI)</span>
+                <h2 class="day-title">福岡巡禮</h2>
+                <ul class="itinerary-list">
+                    <li class="itinerary-item">
+                        <span class="time">Day</span>
+                        <span class="activity">櫛田神社、博多運河城、福岡城跡</span>
+                    </li>
+                    <li class="itinerary-item">
+                        <span class="time">18:30</span>
+                        <span class="activity">搭機回台灣</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>KYUSHU TRIP PLANNER © 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cards = document.querySelectorAll('.day-card');
+            
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                    }
+                });
+            }, {
+                threshold: 0.15
+            });
+
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
